@@ -1,0 +1,29 @@
+{
+  "dev_tools": [
+    {
+      "name": "PyCharm",
+      "command": "pycharm64.exe",
+      "args": [
+        "."
+      ]
+    },
+    {
+      "name": "VSCode",
+      "command": "code",
+      "args": [
+        "."
+      ]
+    },
+    {
+      "name": "Terminal",
+      "command": "cmd",
+      "args": [
+        "/k",
+        "cd",
+        "."
+      ]
+    }
+  ],
+  "last_opened_files": [],
+  "plans": []
+}
