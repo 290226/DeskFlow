@@ -1,151 +1,88 @@
-# DeskFlow - 桌面项目管理器
+# DeskFlow
 
-> 像散落在桌面的纸片一样管理你的项目想法和进度
+> A desktop project manager inspired by the clean, muted aesthetic of scientific publications.
 
-![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
-![PySide6](https://img.shields.io/badge/PySide6-6.5+-green.svg)
-![License](https://img.shields.io/badge/License-MIT-yellow.svg)
-
-## 这是什么？
-
-DeskFlow 是一个**桌面项目管理工具**，专为那些"做到一半停下来，转头就忘"的开发者设计。
-
-核心设计理念：
-- 📝 **便签像纸片一样散落在桌面** —— 随机旋转、不同颜色、自由拖动
-- 📌 **图钉固定** —— 点击便签顶部的图钉，可以固定/解锁位置
-- 🚀 **一键启动开发工具** —— PyCharm、VSCode、Terminal，点一下就开
-- 📅 **日历 + 计划表** —— 左侧边栏直接管理日程
-
-## 界面预览
+## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│ DeskFlow                                          [添加便签]  │
-├──────────┬──────────────────────────────────────────────────┤
-│          │                                                    │
-│ DeskFlow │    ┌────┐      ┌────┐        ┌────┐              │
-│          │    │todo│      │bug │        │idea│              │
-│ 选择项目  │    │list│      │fix │        │note│              │
-│ [项目A ▼] │    └────┘      └────┘        └────┘              │
-│ [新建][删除]│       ↘          ↗                              │
-│          │                                                    │
-│ 日历      │    📌 点击图钉固定位置                              │
-│ [月历]    │    🖱️ 右键画布添加便签                             │
-│          │    🗑️ 双击便签删除                                 │
-│ 今日计划   │                                                    │
-│ □ 修bug   │                                                    │
-│ □ 写文档  │                                                    │
-│          └──────────────────────────────────────────────────┤
-│ 输入计划...  [+]           [PyCharm] [VSCode] [Terminal]      │
-└─────────────────────────────────────────────────────────────┘
+DeskFlow/
+├── main.py              # Entry point (QApplication init)
+├── config.py            # Nature-inspired color palette & constants
+├── data_manager.py      # JSON persistence for projects/notes/config
+├── note.py              # StickyNote + NoteTextEdit (drag, delete, pin)
+├── canvas.py            # DesktopCanvas (QGraphicsView scene)
+├── sidebar.py           # Hover-expandable sidebar (calendar, plans)
+├── dev_tools.py         # DevToolButton + DevToolsDialog
+├── main_window.py       # MainWindow (assembles all components)
+└── data/                # Auto-created at runtime
+    ├── projects.json
+    └── projects/{id}/
+        ├── notes.json
+        └── config.json
 ```
 
-## 功能特性
+## What is this?
 
-### ✅ 已实现
-- [x] **多项目管理** —— 创建、切换、删除项目
-- [x] **桌面便签** —— 像真实纸片一样散落在画布上，随机旋转角度
-- [x] **图钉系统** —— 点击便签顶部的图钉固定位置（红色=固定，灰色=可拖动）
-- [x] **自由拖拽** —— 未固定的便签可以随意拖动到任意位置
-- [x] **自动保存** —— 内容、位置、旋转角度自动持久化到 JSON
-- [x] **日历组件** —— 左侧边栏内置月历视图
-- [x] **今日计划** —— 待办清单，支持勾选完成
-- [x] **开发工具快捷启动** —— 底部工具栏一键打开 IDE / 终端
-- [x] **自定义工具** —— 每个项目可独立配置开发工具命令
-- [x] **入场动画** —— 新便签弹出动画
-- [x] **右键菜单** —— 画布右键快速添加便签
+DeskFlow is a desktop project management tool for developers who often stop mid-task, switch contexts, and forget where they left off.
 
-### 🚧 规划中
-- [ ] 便签颜色自定义
-- [ ] 便签搜索/筛选
-- [ ] 项目导入/导出
-- [ ] 深色模式
-- [ ] 系统托盘最小化
-- [ ] 便签标签分类
-- [ ] 计划提醒通知
+The design philosophy draws from **Nature journal aesthetics**:
+- **Muted, low-saturation colors** — easy on the eyes, publication-grade palettes
+- **Generous whitespace** — warm off-white backgrounds, not harsh greys
+- **Subtle borders** — 1px hairlines instead of heavy shadows
+- **Nature red accent** (`#B83232`) — reserved for primary actions and pinned states
+- **Serif + Sans-serif pairing** — Georgia for headings, Helvetica Neue for UI
 
-## 快速开始
-
-### 1. 安装依赖
+## Quick Start
 
 ```bash
 pip install -r requirements.txt
-```
-
-> 需要 Python 3.9+ 和 PySide6
-
-### 2. 运行
-
-```bash
 python main.py
 ```
 
-### 3. 开始使用
+## Usage
 
-1. **创建项目**：点击左侧「新建」按钮创建你的第一个项目
-2. **添加便签**：
-   - 点击顶部「添加便签」按钮
-   - 或在画布上**右键** → 添加便签
-3. **记录想法**：直接在便签上打字，自动保存
-4. **固定便签**：点击便签顶部的**图钉**，变红后位置锁定
-5. **删除便签**：**双击**便签确认删除
-6. **启动工具**：点击底部工具栏按钮打开 IDE
+| Action | How |
+|--------|-----|
+| **Add note** | Click "+ Note" or right-click canvas |
+| **Drag note** | Hold and drag near edges (18px margin) or top/bottom |
+| **Pin note** | Click the red/grey pin on top |
+| **Delete note** | Click the small **×** in bottom-right corner |
+| **Open sidebar** | Hover mouse over left edge |
+| **Launch IDE** | Click buttons in bottom bar |
 
-## 配置开发工具
+## Features
 
-每个项目可以独立配置开发工具：
+- [x] Multi-project management
+- [x] Sticky notes scattered on canvas with slight random rotation
+- [x] Pin system (red = locked, grey = draggable)
+- [x] Manual drag implementation (works reliably through QTextEdit proxy)
+- [x] Delete button on each note (bottom-right ×)
+- [x] Auto-save to JSON
+- [x] Hover sidebar with calendar (Mon-Sun headers, no week numbers) and plans
+- [x] Per-project dev tool quick launch
+- [x] Custom tool configuration per project
 
-1. 点击顶部「工具配置」
-2. 添加/删除工具
-3. 格式：`名称` + `命令` + `参数`
+## Color Palette
 
-**示例配置**：
+| Role | Hex | Usage |
+|------|-----|-------|
+| Background | `#F7F6F3` | Main window |
+| Canvas | `#F0EEE9` | Note board (cream paper) |
+| Card | `#FFFFFF` | Panels, popups |
+| Primary Text | `#1A1A1A` | Headings, body |
+| Secondary Text | `#5C5C5C` | Labels |
+| Muted Text | `#8C8C8C` | Hints, version |
+| Border | `#E2E0DB` | Dividers, outlines |
+| Accent (Nature Red) | `#B83232` | Primary buttons, pinned pins |
+| Tool Blue | `#3A5A7C` | Secondary actions |
 
-| 名称 | 命令 | 参数 |
-|------|------|------|
-| PyCharm | `pycharm64.exe` | `.` |
-| VSCode | `code` | `.` |
-| Terminal | `cmd` | `/k cd .` |
-| Git GUI | `git` | `gui` |
+## Tech Stack
 
-> 工具配置按项目保存，不同项目可以用不同的工具链。
-
-## 数据存储
-
-所有数据保存在 `data/` 目录下：
-
-```
-data/
-├── projects.json          # 项目列表
-└── projects/
-    ├── proj_20260812.../
-    │   ├── notes.json     # 便签数据（位置、内容、颜色、旋转）
-    │   └── config.json    # 项目配置（工具、计划）
-    └── ...
-```
-
-纯 JSON 格式，可随时手动编辑或备份。
-
-## 技术栈
-
-- **GUI 框架**：PySide6 (Qt for Python)
-- **图形渲染**：QGraphicsView / QGraphicsScene / 自定义 QGraphicsItem
-- **数据持久化**：JSON 文件
-- **动画**：QPropertyAnimation
-
-## 为什么做这个？
-
-> "我老是忘记做到一半停下来，然后去做别的事情，后来就忘记这件事。"
-
-DeskFlow 解决的核心痛点：
-1. **上下文切换损失** —— 中断后回来，一眼就能看到之前的想法和进度
-2. **碎片化记录** —— 不用打开笨重的文档，像随手贴便签一样快
-3. **视觉化记忆** —— 纸片的位置、颜色本身就是一种记忆锚点
+- **GUI**: PySide6 (Qt for Python)
+- **Graphics**: QGraphicsView / QGraphicsScene / Custom QGraphicsItem
+- **Persistence**: JSON files
+- **Typography**: Georgia (serif) + Helvetica Neue (sans-serif)
 
 ## License
 
 MIT
-
----
-
-Made with ☕ and scattered sticky notes.
