@@ -58,7 +58,7 @@ python main.py
 - [x] Manual drag implementation (works reliably through QTextEdit proxy)
 - [x] Delete button on each note (bottom-right ×)
 - [x] Auto-save to JSON
-- [x] Hover sidebar with calendar (Mon-Sun headers, no week numbers) and plans
+- [x] Hover sidebar with calendar (Mon-Sun headers) and plans
 - [x] Per-project dev tool quick launch
 - [x] Custom tool configuration per project
 
