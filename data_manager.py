@@ -92,6 +92,18 @@ class DataManager:
         with open(path, "w", encoding="utf-8") as f:
             json.dump(config, f, ensure_ascii=False, indent=2)
 
+    def load_mindmaps(self, proj_id):
+        path = self.get_project_dir(proj_id) / "mindmaps.json"
+        if path.exists():
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        return {"nodes": []}
+
+    def save_mindmaps(self, proj_id, data):
+        path = self.get_project_dir(proj_id) / "mindmaps.json"
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+
     def delete_project(self, proj_id):
         self.projects = [p for p in self.projects if p["id"] != proj_id]
         self._save_projects()

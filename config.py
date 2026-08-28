@@ -33,3 +33,16 @@ NOTE_COLORS = [
     "#E8DED0", "#D0DDE8", "#D0E4D0", "#E4D0D8",
     "#E8E0D0", "#D0D8E4", "#E4D8D0", "#D0E0D8",
 ]
+
+# Tag colors (muted, distinguishable)
+TAG_COLORS = {
+    "bug": "#C44B4B",
+    "feature": "#4B7C4B",
+    "idea": "#4B6B8C",
+    "todo": "#8C6B4B",
+    "done": "#6B6B6B",
+    "urgent": "#B83232",
+    "review": "#7C4B8C",
+    "docs": "#4B8C7C",
+}
+TAG_COLOR_DEFAULT = "#8C8C8C"

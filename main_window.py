@@ -61,6 +61,10 @@ class MainWindow(QMainWindow):
         cfg_btn = QPushButton("Tools")
         cfg_btn.clicked.connect(self._open_tool_config)
         tl.addWidget(cfg_btn)
+        mm_btn = QPushButton("Mind Map")
+        mm_btn.setStyleSheet(f"QPushButton {{ background-color: #3A5A7C; color: white; border: none; border-radius: 4px; padding: 5px 16px; font-weight: bold; font-family: 'Helvetica Neue', Arial, sans-serif; }} QPushButton:hover {{ background-color: #2D4A6A; }}")
+        mm_btn.clicked.connect(self._add_mindmap)
+        tl.addWidget(mm_btn)
         main_layout.addWidget(toolbar)
 
         # Middle: sidebar + canvas
@@ -75,6 +79,13 @@ class MainWindow(QMainWindow):
         self.drawer.project_combo.currentIndexChanged.connect(self._on_project_changed)
         self.drawer.plan_input.returnPressed.connect(self._add_plan)
         self.drawer.add_plan_btn.clicked.connect(self._add_plan)
+        self.drawer.plan_date_btn.clicked.connect(self._pick_plan_date)
+        self.drawer.tag_list.itemClicked.connect(self._on_tag_selected)
+        self.drawer.clear_tag_btn.clicked.connect(self._on_clear_tag_filter)
+        self.drawer.calendar.selectionChanged.connect(self._on_calendar_date_changed)
+        # Plan list signals (connected once here, not in _load_plans)
+        self.drawer.plan_list.itemChanged.connect(self._on_plan_changed)
+        self.drawer.plan_list.itemDoubleClicked.connect(self._on_plan_double_clicked)
         mid_layout.addWidget(self.drawer)
         self.canvas = DesktopCanvas()
         self.canvas.set_data_manager(self.data_manager)
@@ -113,6 +124,8 @@ class MainWindow(QMainWindow):
         self.canvas.load_project(proj_id)
         self._load_tools()
         self._load_plans()
+        self._refresh_tag_list()
+        self._highlight_plan_dates()
 
     def _on_project_changed(self, idx):
         if idx >= 0:
@@ -144,6 +157,44 @@ class MainWindow(QMainWindow):
     def _on_note_deleted(self, note_id):
         pass
 
+    def _pick_plan_date(self):
+        from PySide6.QtWidgets import QCalendarWidget, QDialog, QVBoxLayout
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Select Due Date")
+        dialog.setFixedSize(320, 280)
+        layout = QVBoxLayout(dialog)
+        cal = QCalendarWidget()
+        cal.setSelectedDate(self.drawer.get_selected_plan_date())
+        layout.addWidget(cal)
+        ok_btn = QPushButton("Select")
+        ok_btn.clicked.connect(dialog.accept)
+        layout.addWidget(ok_btn)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            self.drawer.plan_date = cal.selectedDate()
+            self.drawer.plan_date_btn.setStyleSheet(
+                f"QPushButton {{ background-color: {C_ACCENT}; color: white; border-radius: 4px; font-size: 12px; }}"
+            )
+
+    def _refresh_tag_list(self):
+        self.drawer.tag_list.clear()
+        tags = self.canvas.get_all_tags()
+        for tag in tags:
+            item = QListWidgetItem(f"  {tag}")
+            item.setData(Qt.ItemDataRole.UserRole, tag)
+            self.drawer.tag_list.addItem(item)
+
+    def _on_tag_selected(self, item):
+        tag = item.data(Qt.ItemDataRole.UserRole)
+        if tag:
+            self.canvas.filter_by_tag(tag)
+
+    def _on_clear_tag_filter(self):
+        self.canvas.clear_tag_filter()
+        self.drawer.tag_list.clearSelection()
+
+    def _on_calendar_date_changed(self):
+        self._load_plans()
+
     def _load_tools(self):
         while self.dev_layout.count() > 1:
             item = self.dev_layout.takeAt(1)
@@ -171,15 +222,22 @@ class MainWindow(QMainWindow):
         if not self.current_project_id:
             return
         config = self.data_manager.load_config(self.current_project_id)
-        for plan in config.get("plans", []):
-            item = QListWidgetItem(plan.get("text", ""))
+        plans = config.get("plans", [])
+        filter_date = self.drawer.get_selected_plan_date().toString("yyyy-MM-dd")
+        for plan in plans:
+            due = plan.get("due_date")
+            # If a date is selected in calendar, filter to that date
+            if self.drawer._selected_plan_date and due != filter_date:
+                continue
+            display = plan.get("text", "")
+            if due:
+                display = f"[{due}] {display}"
+            item = QListWidgetItem(display)
             item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
             item.setCheckState(Qt.CheckState.Checked if plan.get("done") else Qt.CheckState.Unchecked)
+            # Store raw text for editing
+            item.setData(Qt.ItemDataRole.UserRole, plan.get("text", ""))
             self.drawer.plan_list.addItem(item)
-        # Connect checkbox toggle
-        self.drawer.plan_list.itemChanged.connect(self._on_plan_changed)
-        # Connect double-click to delete
-        self.drawer.plan_list.itemDoubleClicked.connect(self._on_plan_double_clicked)
 
     def _add_plan(self):
         text = self.drawer.plan_input.text().strip()
@@ -187,11 +245,22 @@ class MainWindow(QMainWindow):
             return
         config = self.data_manager.load_config(self.current_project_id)
         plans = config.get("plans", [])
-        plans.append({"text": text, "done": False, "created_at": datetime.now().isoformat()})
+        due_date = None
+        if self.drawer.plan_date:
+            due_date = self.drawer.plan_date.toString("yyyy-MM-dd")
+        plans.append({
+            "text": text,
+            "done": False,
+            "created_at": datetime.now().isoformat(),
+            "due_date": due_date,
+        })
         config["plans"] = plans
         self.data_manager.save_config(self.current_project_id, config)
         self.drawer.plan_input.clear()
+        self.drawer.plan_date = None
+        self.drawer.plan_date_btn.setStyleSheet("")
         self._load_plans()
+        self._highlight_plan_dates()
 
     def _on_plan_changed(self, item):
         """Save checkbox state when toggled."""
@@ -209,7 +278,7 @@ class MainWindow(QMainWindow):
         if not self.current_project_id:
             return
         reply = QMessageBox.question(
-            self, "Delete Plan", f'Delete plan: "{item.text()}"?',
+            self, "Delete Plan", f'Delete plan: "{item.data(Qt.ItemDataRole.UserRole)}"?',
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
         if reply == QMessageBox.StandardButton.Yes:
@@ -220,10 +289,33 @@ class MainWindow(QMainWindow):
                 del plans[idx]
                 self.data_manager.save_config(self.current_project_id, config)
                 self._load_plans()
+                self._highlight_plan_dates()
+
+    def _highlight_plan_dates(self):
+        if not self.current_project_id:
+            self.drawer.clear_calendar_highlight()
+            return
+        config = self.data_manager.load_config(self.current_project_id)
+        plans = config.get("plans", [])
+        from PySide6.QtCore import QDate
+        dates = []
+        for plan in plans:
+            due = plan.get("due_date")
+            if due:
+                d = QDate.fromString(due, "yyyy-MM-dd")
+                if d.isValid():
+                    dates.append(d)
+        self.drawer.highlight_calendar_dates(dates)
 
     def _auto_save(self):
         if self.canvas:
             self.canvas._save_notes()
+
+    def _add_mindmap(self):
+        if not self.current_project_id:
+            QMessageBox.warning(self, "Notice", "Please select or create a project first.")
+            return
+        self.canvas.add_mindmap()
 
     def closeEvent(self, event):
         if self.canvas:

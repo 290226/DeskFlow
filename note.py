@@ -7,9 +7,9 @@ from PySide6.QtWidgets import (
     QGraphicsProxyWidget, QPushButton
 )
 from PySide6.QtCore import Qt, QRectF, QPointF, Signal
-from PySide6.QtGui import QPainter, QColor, QPen, QBrush, QPainterPath, QCursor
+from PySide6.QtGui import QPainter, QColor, QPen, QBrush, QPainterPath, QCursor, QFont
 
-from config import C_TEXT_PRIMARY, C_TEXT_MUTED, C_BORDER, C_ACCENT, NOTE_COLORS
+from config import C_TEXT_PRIMARY, C_TEXT_MUTED, C_BORDER, C_ACCENT, NOTE_COLORS, TAG_COLORS, TAG_COLOR_DEFAULT
 
 
 class NoteTextEdit(QTextEdit):
@@ -70,15 +70,17 @@ class StickyNote(QGraphicsObject):
     deleted = Signal(str)
     content_changed = Signal(str, str)
     moved = Signal(str, float, float)
+    tags_changed = Signal(str, list)
 
     def __init__(self, note_id, content="", x=100, y=100, width=220, height=180,
-                 rotation=0, color=None, parent=None):
+                 rotation=0, color=None, tags=None, parent=None):
         super().__init__(parent)
         self.note_id = note_id
         self._content = content
         self._width = width
         self._height = height
         self._color = color or random.choice(NOTE_COLORS)
+        self._tags = tags or []
         self._dragging = False
         self._drag_start_pos = None
         self._drag_start_scene = None
@@ -126,6 +128,34 @@ class StickyNote(QGraphicsObject):
         # Ensure delete button is above text
         self.del_proxy.setZValue(10)
 
+        # Tag edit button (top-right)
+        self.tag_btn = QPushButton("")  # will set icon/text below
+        self.tag_btn.setFixedSize(22, 22)
+        self.tag_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.tag_btn.setStyleSheet(f"""
+            QPushButton {{
+                background-color: rgba(200,200,200,80);
+                color: {C_TEXT_MUTED};
+                border: none;
+                border-radius: 11px;
+                font-size: 11px;
+                font-weight: bold;
+                font-family: Arial;
+                padding: 0px;
+            }}
+            QPushButton:hover {{
+                background-color: {C_ACCENT};
+                color: white;
+            }}
+        """)
+        self.tag_btn.setText("")  # placeholder
+        self.tag_btn.clicked.connect(self._edit_tags)
+
+        self.tag_proxy = QGraphicsProxyWidget(self)
+        self.tag_proxy.setWidget(self.tag_btn)
+        self.tag_proxy.setPos(width - 26, 4)
+        self.tag_proxy.setZValue(10)
+
     # ------------------------------------------------------------------
     # Text
     # ------------------------------------------------------------------
@@ -143,6 +173,28 @@ class StickyNote(QGraphicsObject):
         )
         if reply == QMessageBox.StandardButton.Yes:
             self.deleted.emit(self.note_id)
+
+    def _edit_tags(self):
+        from PySide6.QtWidgets import QInputDialog
+        parent = None
+        if self.scene() and self.scene().views():
+            parent = self.scene().views()[0]
+        current = ", ".join(self._tags)
+        text, ok = QInputDialog.getText(
+            parent, "Edit Tags", "Tags (comma-separated):", text=current
+        )
+        if ok:
+            new_tags = [t.strip().lower() for t in text.split(",") if t.strip()]
+            self._tags = new_tags
+            self.tags_changed.emit(self.note_id, self._tags)
+            self.update()
+
+    def get_tags(self):
+        return list(self._tags)
+
+    def set_tags(self, tags):
+        self._tags = list(tags) if tags else []
+        self.update()
 
     # ------------------------------------------------------------------
     # Drag (called by NoteTextEdit)
@@ -221,6 +273,32 @@ class StickyNote(QGraphicsObject):
         painter.setPen(QPen(QColor(C_BORDER), 0.8))
         painter.drawPath(path)
 
+        # Tags (drawn as small rounded pills at top)
+        if self._tags:
+            painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+            x_off = 8
+            for tag in self._tags:
+                color = TAG_COLORS.get(tag, TAG_COLOR_DEFAULT)
+                tag_text = f"  {tag}  "
+                fm = painter.fontMetrics()
+                tw = fm.horizontalAdvance(tag_text)
+                th = fm.height()
+                tag_h = 16
+                tag_rect = QRectF(x_off, 6, tw, tag_h)
+                # Pill background
+                painter.setPen(Qt.PenStyle.NoPen)
+                painter.setBrush(QBrush(QColor(color)))
+                p = QPainterPath()
+                p.addRoundedRect(tag_rect, 8, 8)
+                painter.drawPath(p)
+                # Text
+                painter.setPen(QPen(QColor("white"), 0.5))
+                painter.setFont(QFont("Helvetica Neue", 8, QFont.Weight.Bold))
+                painter.drawText(tag_rect, Qt.AlignmentFlag.AlignCenter, tag)
+                x_off += tw + 6
+            # Restore font
+            painter.setFont(QFont("Georgia", 13))
+
         # Ruled lines
         painter.setPen(QPen(QColor(0, 0, 0, 5), 0.5))
         ly = 30
@@ -242,4 +320,5 @@ class StickyNote(QGraphicsObject):
             "rotation": self.rotation(),
             "color": self._color,
             "pinned": False,
+            "tags": self._tags,
         }
