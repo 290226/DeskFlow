@@ -18,11 +18,11 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from canvas import DesktopCanvas
-from config import APP_NAME, APP_TAGLINE, APP_VERSION, AUTOSAVE_INTERVAL_MS, C_TEXT_MUTED
-from editor import NoteEditorDialog
-from sidebar import Sidebar
-from util import safe_filename
+from deskflow.ui.canvas import DesktopCanvas
+from deskflow.config import APP_NAME, APP_TAGLINE, APP_VERSION, AUTOSAVE_INTERVAL_MS, C_TEXT_MUTED
+from deskflow.ui.editor import NoteEditorDialog
+from deskflow.ui.sidebar import Sidebar
+from deskflow.core.util import safe_filename
 
 
 class MainWindow(QMainWindow):
@@ -655,7 +655,7 @@ def launch(argv=None):
     app = QApplication(argv or [])
     app.setApplicationName(APP_NAME)
     app.setApplicationVersion(APP_VERSION)
-    from data_manager import DataManager
+    from deskflow.core.data_manager import DataManager
 
     window = MainWindow(DataManager())
     window.show()

@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from config import (
+from deskflow.config import (
     C_ACCENT,
     C_BORDER,
     C_TEXT_MUTED,
@@ -23,7 +23,7 @@ from config import (
     NOTE_COLORS,
     NOTE_FONT_SIZES,
 )
-from util import clean_tags
+from deskflow.core.util import clean_tags
 
 FONT_CHOICES = [("Small", NOTE_FONT_SIZES["small"]),
                 ("Medium", NOTE_FONT_SIZES["medium"]),

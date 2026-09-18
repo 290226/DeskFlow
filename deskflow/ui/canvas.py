@@ -29,7 +29,7 @@ from PySide6.QtWidgets import (
     QMessageBox,
 )
 
-from config import (
+from deskflow.config import (
     C_ACCENT,
     C_BG_CANVAS,
     C_GRID,
@@ -45,9 +45,9 @@ from config import (
     Z_NOTE_BASE,
     Z_NOTE_MAX,
 )
-from mindmap import MindMapManager
-from note import StickyNote
-from util import clamp, new_id
+from deskflow.ui.mindmap import MindMapManager
+from deskflow.ui.note import StickyNote
+from deskflow.core.util import clamp, new_id
 
 SAVE_DEBOUNCE_MS = 600
 

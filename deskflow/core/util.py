@@ -4,7 +4,7 @@ import random
 import re
 from datetime import date, datetime, timedelta
 
-from config import PRIORITY_ORDER
+from deskflow.config import PRIORITY_ORDER
 
 _ILLEGAL_FILENAME = re.compile(r'[\\/:*?"<>|\r\n\t]+')
 

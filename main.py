@@ -5,12 +5,19 @@ Run with:  python main.py
 
 import argparse
 import sys
+from pathlib import Path
+
+# Make the project root importable no matter where the launcher is started from,
+# so that ``from deskflow...`` always resolves.
+PROJECT_ROOT = Path(__file__).resolve().parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from PySide6.QtWidgets import QApplication
 
-from config import APP_NAME, APP_VERSION
-from data_manager import DataManager
-from main_window import MainWindow
+from deskflow.config import APP_NAME, APP_VERSION
+from deskflow.core.data_manager import DataManager
+from deskflow.ui.main_window import MainWindow
 
 GLOBAL_QSS = """
 QMainWindow { background-color: #F7F6F3; }

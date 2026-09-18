@@ -59,7 +59,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from config import (
+from deskflow.config import (
     APP_NAME,
     APP_VERSION,
     C_ACCENT,
@@ -81,7 +81,7 @@ from config import (
     TAG_COLOR_DEFAULT,
     TAG_COLORS,
 )
-from util import human_date, parse_date, summarize, week_bounds
+from deskflow.core.util import human_date, parse_date, summarize, week_bounds
 
 COLLAPSED_WIDTH = 12
 EXPANDED_WIDTH = 326

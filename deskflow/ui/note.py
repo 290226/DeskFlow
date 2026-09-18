@@ -36,7 +36,7 @@ from PySide6.QtWidgets import (
     QTextEdit,
 )
 
-from config import (
+from deskflow.config import (
     C_ACCENT,
     C_BORDER,
     C_HIGHLIGHT,
@@ -58,7 +58,7 @@ from config import (
     Z_NOTE_BASE,
     Z_NOTE_MAX,
 )
-from util import clamp, clean_tags, new_id
+from deskflow.core.util import clamp, clean_tags, new_id
 
 TAG_FONT = QFont("Segoe UI", 8, QFont.Weight.Bold)
 

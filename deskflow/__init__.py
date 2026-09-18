@@ -8,17 +8,17 @@ Requirements: Python 3.9+ and PySide6 (`pip install PySide6`).
 
 Modules
 -------
-    main.py           entry point (QApplication + global style sheet)
-    main_window.py    MainWindow: menus, toolbar, shortcuts, project/plan logic
-    sidebar.py        hover-expandable drawer: project, calendar, plans, tags
-    canvas.py         DesktopCanvas / CanvasScene: notes + mind map board
-    note.py           StickyNote / NoteTextEdit graphics items
-    mindmap.py        MindMapNode / MindMapEdge / MindMapManager
-    editor.py         NoteEditorDialog (full note editor)
-    data_manager.py   projects, notes, plans, settings, export
-    storage.py        crash-safe JSON read/write
-    config.py         colours, sizes, constants
-    util.py           ids, dates, tags, text helpers
+    main.py                       entry point (QApplication + global style sheet)
+    deskflow/config.py            colours, sizes, constants
+    deskflow/core/util.py         ids, dates, tags, text helpers
+    deskflow/core/storage.py      crash-safe JSON read/write
+    deskflow/core/data_manager.py projects, notes, plans, settings, export
+    deskflow/ui/note.py           StickyNote / NoteTextEdit graphics items
+    deskflow/ui/mindmap.py        MindMapNode / MindMapEdge / MindMapManager
+    deskflow/ui/canvas.py         DesktopCanvas / CanvasScene: notes + mind map board
+    deskflow/ui/sidebar.py        hover-expandable drawer: project, calendar, plans, tags
+    deskflow/ui/editor.py         NoteEditorDialog (full note editor)
+    deskflow/ui/main_window.py    MainWindow: menus, toolbar, shortcuts, project/plan logic
 
 Data location
 -------------
@@ -66,5 +66,4 @@ Keyboard
 """
 
 __version__ = "0.2.0"
-__all__ = ["config", "util", "storage", "data_manager", "note", "mindmap",
-           "canvas", "sidebar", "editor", "main_window"]
+__all__ = ["config", "core", "ui"]

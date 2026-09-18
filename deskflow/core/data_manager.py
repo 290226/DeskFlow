@@ -22,9 +22,9 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-from config import APP_VERSION, PRIORITY_ORDER
-from storage import read_json, write_json
-from util import new_id, normalize_plan, normalize_plans, now_iso, safe_filename
+from deskflow.config import APP_VERSION, PRIORITY_ORDER
+from deskflow.core.storage import read_json, write_json
+from deskflow.core.util import new_id, normalize_plan, normalize_plans, now_iso, safe_filename
 
 
 def _probe_writable(path):
@@ -40,7 +40,8 @@ def _probe_writable(path):
 
 def resolve_data_root():
     """Pick a writable location for the data directory."""
-    local = Path(__file__).resolve().parent / "data"
+    # This file lives in <project>/deskflow/core/, so the app folder is two up.
+    local = Path(__file__).resolve().parents[2] / "data"
     if _probe_writable(local):
         return local
     bases = [

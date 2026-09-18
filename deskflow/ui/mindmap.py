@@ -29,7 +29,7 @@ from PySide6.QtWidgets import (
     QPushButton,
 )
 
-from config import (
+from deskflow.config import (
     C_ACCENT,
     C_BORDER,
     C_BORDER_DARK,
@@ -41,8 +41,8 @@ from config import (
     Z_MINDMAP_GHOST,
     Z_MINDMAP_MAX,
 )
-from note import NoteTextEdit
-from util import clamp, new_id
+from deskflow.ui.note import NoteTextEdit
+from deskflow.core.util import clamp, new_id
 
 NODE_COLORS = [
     "#FFFFFF", "#E8EDF2", "#E8DED0", "#D0E4D0", "#E4D0D8", "#E8E0D0", "#DDE6E0",

@@ -113,18 +113,23 @@ data/
 ## 6. 目录结构
 
 ```
-main.py          入口：QApplication、全局样式、命令行参数
-main_window.py   主窗口：菜单、工具栏、快捷键、项目 / 任务逻辑
-sidebar.py       悬停抽屉：项目、日历、任务、标签
-canvas.py        画布与场景：便签与导图节点
-note.py          便签图元与文本编辑
-mindmap.py       导图节点、连线、导图管理
-editor.py        便签全屏编辑对话框
-data_manager.py  项目、便签、任务、设置、导出、回收站
-storage.py       崩溃安全的 JSON 读写
-config.py        配色、尺寸、常量
-util.py          id / 日期 / 标签 / 文本工具
-docs/screenshots/ 界面截图，供本文档与项目展示引用
+main.py                        入口：QApplication、全局样式、命令行参数
+run.bat                        Windows 一键启动脚本
+deskflow/                      应用包（业务代码全部收纳于此）
+├─ __init__.py                 包说明与版本号
+├─ config.py                   配色、尺寸、常量
+├─ core/                       持久化与工具层（不依赖 Qt）
+│   ├─ util.py                 id / 日期 / 标签 / 文本工具
+│   ├─ storage.py              崩溃安全的 JSON 读写
+│   └─ data_manager.py         项目、便签、任务、设置、导出、回收站
+└─ ui/                         界面层
+    ├─ main_window.py          主窗口：菜单、工具栏、快捷键、项目 / 任务逻辑
+    ├─ sidebar.py              悬停抽屉：项目、日历、任务、标签
+    ├─ canvas.py               画布与场景：便签与导图节点
+    ├─ note.py                 便签图元与文本编辑
+    ├─ mindmap.py              导图节点、连线、导图管理
+    └─ editor.py               便签全屏编辑对话框
+docs/screenshots/              界面截图，供本文档与项目展示引用
 ```
 
 ## 7. 常见问题
