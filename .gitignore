@@ -2,13 +2,20 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.egg-info/
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
 
 # PyInstaller
 build/
 dist/
 *.spec
 
-# User data
+# Runtime data (generated on first launch, may contain personal notes)
 data/
 
 # IDE
@@ -19,3 +26,7 @@ data/
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# Logs
+*.log
